@@ -2,13 +2,12 @@
   import Header from './components/Header.vue';
   import Balance from './components/Balance.vue';
   import IncomeExpenses from './components/IncomeExpenses.vue';
-  import { ref, computed } from 'vue';
+  import AddTransaction from './components/AddTransaction.vue';
+  import TransactionList from './components/TransactionList.vue';
+
+  import {ref, computed, onMounted} from 'vue'
 
   const transactions = ref([
-    {id: 1, text: 'Paycheck', amount: 700.00},
-    {id: 1, text: 'water bill', amount: -72.83},
-    {id: 1, text: 'electric bill', amount: -153.89},
-    {id: 1, text: 'returned item', amount: 20.00},
   ])
 
   const sum = computed(()=>{
@@ -16,7 +15,6 @@
       return acc+x.amount
     },0)
   })
-
   const moneyIn = computed(()=>{
     return transactions.value
     .filter((x)=>x.amount>0)
@@ -24,8 +22,6 @@
       return acc+x.amount
     },0)
   })
-
-
   const moneyOut = computed(()=>{
     return transactions.value
     .filter((x)=>x.amount<0)
@@ -34,13 +30,45 @@
     },0)
   })
 
+  const handleTransaction = (transactionData) => {
+    transactions.value.push({
+      id: generateID(),
+      text: transactionData.text,
+      amount: transactionData.amount,
+    })
+    saveToLocalStorage()
+  }
+
+  const generateID = () =>{
+    return Math.floor(Math.random()*10000000)
+  }
+
+  const handleDelete = (id) =>  {
+    transactions.value = transactions.value.filter((x) => x.id !== id)
+    saveToLocalStorage()
+  }
+
+  const saveToLocalStorage = () => {
+    localStorage.setItem('transactions', JSON.stringify(transactions.value))
+  }
+
+  onMounted(() => {
+    const savedTransactions = JSON.parse(localStorage.getItem('transactions'))
+
+    if(savedTransactions){
+      transactions.value = savedTransactions
+    }
+  })
 
 </script>
 
 <template>
-  <Header></Header>
-  <div class="container">
-    <Balance :total="sum"></Balance>
-    <IncomeExpenses :income="moneyIn" :expense="moneyOut"></IncomeExpenses>
-  </div>    
+    <Header></Header>
+    <div class="container">
+      <Balance :total="sum"></Balance>
+      <IncomeExpense :income="moneyIn" :expense="moneyOut"></IncomeExpense>
+      <AddTransaction @transactionSubmitted="handleTransaction"></AddTransaction>
+      <TransactionList :transactions="transactions" @transactionDeleted="handleDelete"></TransactionList>
+    </div>
+
 </template>
