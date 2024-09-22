@@ -66,7 +66,7 @@
     <Header></Header>
     <div class="container">
       <Balance :total="sum"></Balance>
-      <IncomeExpense :income="moneyIn" :expense="moneyOut"></IncomeExpense>
+      <IncomeExpenses :income="moneyIn" :expense="moneyOut"></IncomeExpenses>
       <AddTransaction @transactionSubmitted="handleTransaction"></AddTransaction>
       <TransactionList :transactions="transactions" @transactionDeleted="handleDelete"></TransactionList>
     </div>
